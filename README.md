@@ -238,23 +238,6 @@ plots/
 
 ---
 
-# Remarks
-
-This repository serves as an educational and research-oriented baseline for:
-
-* Reinforcement learning in quantum system control
-* Benchmarking actor-critic families
-* Evaluating noise-induced training degradation
-
-It is also intended as a structural reference for:
-
-* science fair (科展)
-* machine learning research projects
-* university admission portfolio
-* reproducible academic computing
-
----
-
 # License
 
 MIT License.
