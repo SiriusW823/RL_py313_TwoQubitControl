@@ -6,119 +6,140 @@
 
 ## Abstract
 
-This repository presents a fully Python 3.13–compatible framework for studying quantum-inspired reinforcement learning (RL) applied to two-qubit state control.
-The project benchmarks two policy gradient RL algorithms—**A2C (Advantage Actor-Critic)** and **PPO (Proximal Policy Optimization)**—on a simplified two-qubit environment under both:
+This repository presents a fully Python 3.13–compatible framework for studying quantum-inspired reinforcement learning (RL) applied to two-qubit quantum state control.  
+Two policy gradient RL algorithms—**A2C (Advantage Actor-Critic)** and **PPO (Proximal Policy Optimization)**—are benchmarked on a minimal two-qubit environment under:
 
-1. **Clean (noise-free) conditions**, and
+1. **Clean (noise-free) conditions**, and  
 2. **Noisy quantum dynamics** with Gaussian perturbations.
 
-Results demonstrate that both algorithms learn to achieve near-optimal reward in the clean environment, while robustness under noise reveals convergence degradation patterns. PPO shows stronger stability under moderate noise relative to A2C.
+Results demonstrate that both algorithms achieve near-optimal control performance in the clean environment, while robustness under noise reveals convergence degradation patterns. PPO shows stronger stability relative to A2C under moderate noise.
 
-All implementations avoid legacy `gym` dependencies, making this repository modern-compatible, lightweight, and suitable for academic reproducibility.
+All implementations avoid legacy `gym` dependencies, making this repository modern-compatible, lightweight, and academically reproducible.
 
 ---
 
 ## Key Features
 
-* Python 3.13 compatible (no gym dependency)
-* Minimalistic two-qubit control environment
-* Implementations of:
-  * A2C (PyTorch)
-  * PPO with clipping objective
-* Support for noise-perturbed quantum dynamics
-* Reproducible RL experiments
-* Plots comparing:
-  * A2C vs PPO
-  * Clean vs Noisy reward trends
-* Clear experiment scripts with streamlined usage
+- Full Python 3.13 compatibility (no `gym` required)
+- Minimal two-qubit control environment
+- Implementations of:
+  - A2C (PyTorch)
+  - PPO (with clipping objective)
+- Configurable Gaussian noise modeling
+- Reproducible RL benchmarking
+- Built-in evaluation plots:
+  - A2C vs PPO
+  - Clean vs Noisy performance
+- Clear experiment scripts with streamlined usage
 
 ---
 
 # Mathematical Background
 
-### 1. Reinforcement Learning Setup
+## 1. RL Setup
 
 The agent interacts with the two-qubit state space via discrete action operators.
 
-- State: qubit amplitudes, with the state vector dimension
-  $s_t \in \mathbb{R}^{8}$.
+### State
+Qubit amplitudes with state vector dimension:
+\( s_t \in \mathbb{R}^8 \)
 
-- Actions: basic unitary gates (mapped to 6 discrete operations).
+### Actions
+Discrete set of 6 unitary-inspired transformations.
 
-- Reward: fidelity to target quantum state
-  $$
-  R_t = 20 \cdot \left|\left\langle \psi_{\text{target}} \mid \psi_t \right\rangle\right|^2,
-  $$
-  normalized up to `20`.
+### Reward
+Fidelity to target quantum state:
+
+```math
+R_t =
+20 \cdot \left|\left\langle \psi_{\text{target}} \mid \psi_t \right\rangle\right|^2
+````
+
+Reward is normalized up to `20`.
 
 ---
 
-### 2. A2C Policy Update
+## 2. A2C Policy Gradient Objective
 
-The policy gradient objective for A2C is
-$$
+```math
 \nabla_\theta J(\theta) =
-\mathbb{E}\!\left[
-\nabla_\theta \log \pi_\theta(a_t \mid s_t) \cdot A_t
-\right],
-$$
+\mathbb{E}
+\left[
+\nabla_\theta \log \pi_\theta(a_t \mid s_t)
+\cdot A_t
+\right]
+```
 
-where the advantage is
-$$
-A_t = R_t - V_\phi(s_t).
-$$
+Where the advantage is defined as:
+
+```math
+A_t = R_t - V_\phi(s_t)
+```
 
 ---
 
-### 3. PPO Clipped Objective
+## 3. PPO Clipped Objective
 
-PPO maximizes the clipped surrogate objective:
-$$
+```math
 L(\theta) =
-\mathbb{E}\!\left[
-\min\!\left(
-r_t(\theta)\cdot A_t,\;
-\mathrm{clip}\!\left(r_t(\theta),\,1-\epsilon,\,1+\epsilon\right)\cdot A_t
+\mathbb{E}
+\left[
+\min
+\left(
+r_t(\theta) \cdot A_t,
+\;
+\mathrm{clip}
+\left(
+r_t(\theta),
+1 - \epsilon,
+1 + \epsilon
 \right)
-\right],
-$$
+\cdot A_t
+\right)
+\right]
+```
 
-with the importance ratio
-$$
+Importance sampling ratio:
+
+```math
 r_t(\theta) =
-\frac{\pi_\theta(a_t \mid s_t)}{\pi_{\theta_{\text{old}}}(a_t \mid s_t)}.
-$$
+\frac{
+\pi_\theta(a_t \mid s_t)
+}{
+\pi_{\theta_{\text{old}}}(a_t \mid s_t)
+}
+```
 
-Clipping prevents unstable large policy updates.
+Clipping constrains unbounded policy shifts and stabilizes learning.
 
 ---
 
-## Project Structure
+# Project Structure
 
 ```text
 RL_py313_TwoQubitControl/
 │
 ├── algorithms/                         # RL core algorithms (PyTorch)
-│   ├── a2c.py                           # Advantage Actor-Critic implementation
-│   └── ppo.py                           # Proximal Policy Optimization implementation
+│   ├── a2c.py                           # A2C implementation
+│   └── ppo.py                           # PPO implementation
 │
-├── envs/                                # Two-qubit simulators
-│   ├── two_qubit_env.py                 # Clean environment (noise-free)
-│   └── two_qubit_noisy_env.py           # Noisy environment with configurable Gaussian noise
+├── envs/                                # Two-qubit simulations
+│   ├── two_qubit_env.py                 # Clean environment
+│   └── two_qubit_noisy_env.py           # Environment with Gaussian noise
 │
-├── experiments/                         # Training & evaluation scripts
-│   ├── train_a2c_two_qubit.py           # Train A2C on clean environment
-│   ├── train_ppo_two_qubit.py           # Train PPO on clean environment
-│   ├── compare_a2c_ppo.py               # Compare A2C vs PPO performance (clean)
-│   └── compare_clean_vs_noisy.py        # Compare clean vs noisy env (A2C & PPO)
+├── experiments/                         # Training & analysis scripts
+│   ├── train_a2c_two_qubit.py           # Train A2C on clean setup
+│   ├── train_ppo_two_qubit.py           # Train PPO on clean setup
+│   ├── compare_a2c_ppo.py               # A2C vs PPO (clean)
+│   └── compare_clean_vs_noisy.py        # Clean vs noisy benchmarking
 │
-├── plots/                               # Auto-generated experiment figures
+├── plots/                               # Generated figures
 │   ├── a2c_clean_smooth.png
 │   ├── ppo_clean_smooth.png
 │   ├── clean_vs_noisy_sigma_0.05.png
 │   └── a2c_vs_ppo_clean_smooth.png
 │
-├── requirements.txt                     # All dependencies for Python 3.13
+├── requirements.txt                     # Python 3.13 dependencies
 ├── README.md
 ├── LICENSE
 ├── .gitignore
@@ -169,15 +190,13 @@ python experiments/train_a2c_two_qubit.py
 python experiments/train_ppo_two_qubit.py
 ```
 
-## 3. Generate comparison plots
-
-(A2C vs PPO clean/noisy)
+## 3. Generate all comparison plots
 
 ```bash
 python experiments/compare_clean_vs_noisy.py
 ```
 
-Outputs will be saved in:
+Plots will be output to:
 
 ```
 plots/
@@ -189,44 +208,46 @@ plots/
 
 ## Clean Environment
 
-* A2C converges faster and reaches maximum reward earlier.
-* PPO converges more smoothly but slower in initial learning.
-
-Both methods:
-
-> achieve near-optimal control performance  
-> (max reward ≈ 20)
+* A2C converges faster
+* PPO is smoother and more stable
+* Both reach near-optimal reward (≈ 20)
 
 ---
 
 ## Noisy Environment (σ = 0.05)
 
-* Both algorithms suffer degraded learning stability
-* Reward volatility increases
-* A2C retains slightly better peak performance
-* PPO shows smoother averaged convergence
+Increasing noise introduces:
 
-Quantum-noise sensitivity becomes a key research signal for:
+* reward fluctuations
+* slower convergence
+* policy stability challenges
 
-* robust control models
-* noise-aware policy design
+Findings:
+
+* A2C retains slightly higher peak reward
+* PPO exhibits greater long-term stability
+
+Noise-sensitivity trends highlight the importance of:
+
+* robust control policies
+* noise-adaptive quantum learning designs
 
 ---
 
 # Plots Included
 
-### Clean:
+## Clean:
 
 * A2C (smoothed)
 * PPO (smoothed)
 * A2C vs PPO
 
-### Clean vs Noisy:
+## Clean vs Noisy:
 
 * A2C (σ = 0.05)
 * PPO (σ = 0.05)
 
-All figures are saved under:
+All generated figures are saved under:
 
 ```
 plots/
@@ -243,10 +264,14 @@ Use freely with citation or reference.
 
 # Citation (optional)
 
-If used in academic reports:
-
 ```
-SiriusW823 (2025). RL_py313_TwoQubitControl:
-Reinforcement Learning for Two-Qubit Quantum State Control, GitHub.
+SiriusW823 (2025).
+RL_py313_TwoQubitControl:
+Reinforcement Learning for Two-Qubit Quantum State Control.
+GitHub.
 https://github.com/SiriusW823/RL_py313_TwoQubitControl
+```
+
+---
+
 ```
