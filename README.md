@@ -12,7 +12,7 @@ The project benchmarks two policy gradient RL algorithms—**A2C (Advantage Acto
 1. **Clean (noise-free) conditions**, and
 2. **Noisy quantum dynamics** with Gaussian perturbations.
 
-Results demonstrate that both algorithms learn to achieve near-optimal reward in the clean environment, while robustness under noise reveals convergence degradation patterns. PPO shows stronger stability during long-term training, whereas A2C exhibits faster early-stage convergence.
+Results demonstrate that both algorithms learn to achieve near-optimal reward in the clean environment, while robustness under noise reveals convergence degradation patterns. PPO shows stronger stability under moderate noise relative to A2C.
 
 All implementations avoid legacy `gym` dependencies, making this repository modern-compatible, lightweight, and suitable for academic reproducibility.
 
@@ -23,13 +23,11 @@ All implementations avoid legacy `gym` dependencies, making this repository mode
 * Python 3.13 compatible (no gym dependency)
 * Minimalistic two-qubit control environment
 * Implementations of:
-
   * A2C (PyTorch)
   * PPO with clipping objective
 * Support for noise-perturbed quantum dynamics
 * Reproducible RL experiments
 * Plots comparing:
-
   * A2C vs PPO
   * Clean vs Noisy reward trends
 * Clear experiment scripts with streamlined usage
@@ -42,55 +40,54 @@ All implementations avoid legacy `gym` dependencies, making this repository mode
 
 The agent interacts with the two-qubit state space via discrete action operators.
 
-* State:
-  Qubit amplitudes
-  ( s_t \in \mathbb{R}^{8} )
+- State: qubit amplitudes, with the state vector dimension
+  $s_t \in \mathbb{R}^{8}$.
 
-* Actions:
-  Basic unitary gates (mapped to 6 discrete operations)
+- Actions: basic unitary gates (mapped to 6 discrete operations).
 
-* Reward:
-  Fidelity to target quantum state
-  [
-  R_t = 20 \cdot |\langle \psi_{\text{target}} | \psi_t \rangle|^2
-  ]
-  (normalized up to `20`)
+- Reward: fidelity to target quantum state
+  $$
+  R_t = 20 \cdot \left|\left\langle \psi_{\text{target}} \mid \psi_t \right\rangle\right|^2,
+  $$
+  normalized up to `20`.
 
 ---
 
 ### 2. A2C Policy Update
 
-[
-\nabla_\theta J(\theta)=
-\mathbb{E}\left[
-\nabla_\theta \log \pi_\theta(a_t|s_t)\cdot A_t
-\right]
-]
+The policy gradient objective for A2C is
+$$
+\nabla_\theta J(\theta) =
+\mathbb{E}\!\left[
+\nabla_\theta \log \pi_\theta(a_t \mid s_t) \cdot A_t
+\right],
+$$
 
-where
-
-[
-A_t = R_t - V_\phi(s_t)
-]
+where the advantage is
+$$
+A_t = R_t - V_\phi(s_t).
+$$
 
 ---
 
 ### 3. PPO Clipped Objective
 
-[
+PPO maximizes the clipped surrogate objective:
+$$
 L(\theta) =
-\mathbb{E}\left[
-\min\left(
-r_t(\theta)\cdot A_t,;
-\text{clip}(r_t(\theta),1-\epsilon,1+\epsilon)\cdot A_t
+\mathbb{E}\!\left[
+\min\!\left(
+r_t(\theta)\cdot A_t,\;
+\mathrm{clip}\!\left(r_t(\theta),\,1-\epsilon,\,1+\epsilon\right)\cdot A_t
 \right)
-\right]
-]
+\right],
+$$
 
-[
+with the importance ratio
+$$
 r_t(\theta) =
-\dfrac{\pi_\theta(a_t|s_t)}{\pi_{\theta_{\text{old}}}(a_t|s_t)}
-]
+\frac{\pi_\theta(a_t \mid s_t)}{\pi_{\theta_{\text{old}}}(a_t \mid s_t)}.
+$$
 
 Clipping prevents unstable large policy updates.
 
@@ -126,7 +123,6 @@ RL_py313_TwoQubitControl/
 ├── LICENSE
 ├── .gitignore
 └── .gitattributes
-
 ```
 
 ---
@@ -198,7 +194,7 @@ plots/
 
 Both methods:
 
-> achieve near-optimal control performance
+> achieve near-optimal control performance  
 > (max reward ≈ 20)
 
 ---
